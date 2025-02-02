@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clonar Repositorio') {
             steps {
-                git 'https://github.com/glomarperu/mi-proyecto-jenkins.git'
+                git branch: 'main', url: 'https://github.com/glomarperu/mi-proyecto-jenkins.git'
             }
         }
         
