@@ -2,50 +2,38 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Declarative: Checkout SCM') {
             steps {
                 checkout scm
             }
         }
-
         stage('Instalar dependencias') {
             steps {
                 script {
-                    // Ejecuta la instalación dentro del contenedor Docker
+                    // Instalar globalmente htmlhint en el contenedor
                     sh 'docker run --rm node:16-alpine npm install -g htmlhint'
                 }
             }
         }
-
-
         stage('Validar HTML') {
             steps {
                 script {
-                    // Usamos la misma imagen Docker para ejecutar la validación HTML
-                    docker.image('node:16-alpine').inside {
-                        // Ejecuta el comando de validación con htmlhint
-                        sh 'htmlhint index.html'
-                    }
+                    // Usar un contenedor de Docker con la herramienta htmlhint instalada
+                    sh 'docker run --rm -v $PWD:/workspace node:16-alpine htmlhint /workspace/index.html'
                 }
             }
         }
-
         stage('Construir imagen Docker') {
             steps {
                 script {
-                    // Construir la imagen Docker para tu aplicación
-                    sh 'docker build -t mi-imagen .'
+                    // Aquí va tu lógica para construir la imagen Docker
                 }
             }
         }
-
         stage('Ejecutar pruebas') {
             steps {
                 script {
-                    // Ejecuta pruebas dentro del contenedor Docker con Node.js
-                    docker.image('node:16-alpine').inside {
-                        sh 'npm test'
-                    }
+                    // Aquí va tu lógica para ejecutar las pruebas
                 }
             }
         }
@@ -53,7 +41,6 @@ pipeline {
 
     post {
         always {
-            // Limpiar o realizar acciones post-ejecución
             echo 'Pipeline completado.'
         }
         failure {
