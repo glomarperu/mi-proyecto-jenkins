@@ -4,29 +4,31 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Clonar el repositorio
                 checkout scm
             }
         }
         stage('Instalar dependencias') {
             steps {
-                // Instalar htmlhint para la validación de sintaxis HTML
                 script {
-                    sh 'npm install -g htmlhint'
+                    // Usamos un contenedor Docker con Node.js para instalar dependencias
+                    docker.image('node:16').inside {
+                        sh 'npm install -g htmlhint'
+                    }
                 }
             }
         }
         stage('Validar HTML') {
             steps {
-                // Ejecutar la validación de HTML
                 script {
-                    sh 'htmlhint index.html'
+                    // Ejecutamos la validación en el contenedor Docker
+                    docker.image('node:16').inside {
+                        sh 'htmlhint index.html'
+                    }
                 }
             }
         }
         stage('Construir imagen Docker') {
             steps {
-                // Construir la imagen Docker usando el Dockerfile
                 script {
                     sh 'docker build -t glomarperu/mi-proyecto-jenkins:latest .'
                 }
@@ -34,7 +36,6 @@ pipeline {
         }
         stage('Ejecutar pruebas') {
             steps {
-                // Agregar tus pruebas unitarias aquí si las tienes
                 echo 'Aquí puedes agregar pruebas unitarias.'
             }
         }
@@ -42,7 +43,6 @@ pipeline {
 
     post {
         always {
-            // Aquí puedes agregar cualquier limpieza o notificación
             echo 'Pipeline completado.'
         }
     }
