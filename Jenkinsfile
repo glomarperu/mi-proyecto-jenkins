@@ -27,7 +27,15 @@ pipeline {
             steps {
                 script {
                     echo "Construir imagen Docker"
-                    sh 'docker run -d -p 8081:80 my-htmlhint-container'
+                    // Verificar si el puerto 8081 ya está en uso
+                    def isPortAvailable = sh(script: 'lsof -i :8081', returnStatus: true)
+                    
+                    if (isPortAvailable != 0) {
+                        // Si el puerto no está en uso, ejecutamos el contenedor
+                        sh 'docker run -d -p 8081:80 my-htmlhint-container'
+                    } else {
+                        echo "Puerto 8081 ya está en uso, no se ejecutará el contenedor."
+                    }
                 }
             }
         }
