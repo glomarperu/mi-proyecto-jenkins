@@ -31,19 +31,23 @@ pipeline {
                     // Construir imagen en ambas máquinas
                     sh 'docker build -t my-htmlhint-container .'
                     
-                    // Intentar ejecutar el contenedor localmente en la máquina donde corra el pipeline
+                    // Verificar si el puerto 8081 está en uso y detener el contenedor que lo esté utilizando
                     def isPortAvailable = sh(script: 'lsof -i :8081', returnStatus: true)
                     
-                    if (isPortAvailable != 0) {
-                        sh 'docker run -d -p 8081:80 my-htmlhint-container'
-                        echo "Contenedor ejecutado en esta máquina"
-                    } else {
-                        echo "El puerto 8081 ya está en uso"
+                    if (isPortAvailable == 0) {
+                        // Si el puerto está en uso, obtener el ID del contenedor y detenerlo
+                        def containerId = sh(script: 'lsof -ti :8081', returnStdout: true).trim()
+                        sh "docker stop ${containerId}"
+                        sh "docker rm ${containerId}"
+                        echo "Contenedor detenido y eliminado."
                     }
+                    
+                    // Ejecutar el contenedor nuevo
+                    sh 'docker run -d -p 8081:80 my-htmlhint-container'
+                    echo "Contenedor ejecutado en esta máquina en el puerto 8081"
                 }
             }
         }
-
 
         stage('Ejecutar pruebas') {
             steps {
