@@ -10,23 +10,22 @@ pipeline {
         stage('Instalar dependencias') {
             steps {
                 script {
-                    // Instalar globalmente htmlhint en el contenedor
-                    sh 'docker run --rm node:16-alpine npm install -g htmlhint'
+                    // Instalar htmlhint dentro del contenedor personalizado
+                    sh 'docker build -t my-htmlhint-container .'
                 }
             }
         }
         stage('Validar HTML') {
             steps {
                 script {
-                    // Usar un contenedor de Docker con la herramienta htmlhint instalada
-                    sh 'docker run --rm -v $PWD:/workspace node:16-alpine htmlhint /workspace/index.html'
+                    // Usar el contenedor personalizado para validar el HTML
+                    sh 'docker run --rm -v $PWD:/workspace my-htmlhint-container htmlhint /workspace/index.html'
                 }
             }
         }
         stage('Construir imagen Docker') {
             steps {
                 script {
-                    // Aquí va tu lógica para construir la imagen Docker
                     echo "Construir imagen Docker"
                 }
             }
@@ -34,7 +33,6 @@ pipeline {
         stage('Ejecutar pruebas') {
             steps {
                 script {
-                    // Aquí va tu lógica para ejecutar las pruebas
                     echo "Ejecutar pruebas"
                 }
             }
