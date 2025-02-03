@@ -27,18 +27,23 @@ pipeline {
             steps {
                 script {
                     echo "Construir imagen Docker"
-                    // Verificar si el puerto 8081 ya está en uso
+                    
+                    // Construir imagen en ambas máquinas
+                    sh 'docker build -t my-htmlhint-container .'
+                    
+                    // Intentar ejecutar el contenedor localmente en la máquina donde corra el pipeline
                     def isPortAvailable = sh(script: 'lsof -i :8081', returnStatus: true)
                     
                     if (isPortAvailable != 0) {
-                        // Si el puerto no está en uso, ejecutamos el contenedor
                         sh 'docker run -d -p 8081:80 my-htmlhint-container'
+                        echo "Contenedor ejecutado en esta máquina"
                     } else {
-                        echo "Puerto 8081 ya está en uso, no se ejecutará el contenedor."
+                        echo "El puerto 8081 ya está en uso"
                     }
                 }
             }
         }
+
 
         stage('Ejecutar pruebas') {
             steps {
