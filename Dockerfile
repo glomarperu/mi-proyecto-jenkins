@@ -1,20 +1,11 @@
-# Usa una imagen base que contenga Node.js
+# Usa una imagen base de Node.js (asegurando que se pueda instalar htmlhint)
 FROM node:16-alpine
 
-# Configura el directorio de trabajo en el contenedor
-WORKDIR /app
+# Instala htmlhint globalmente
+RUN npm install -g htmlhint
 
-# Copia el archivo package.json y package-lock.json (si los tienes) para instalar dependencias
-COPY package*.json ./
+# Copia los archivos de tu proyecto al contenedor
+COPY . /usr/share/nginx/html
 
-# Instala las dependencias de npm
-RUN npm install
-
-# Copia el resto de los archivos del proyecto
-COPY . .
-
-# Expone el puerto si necesitas servir una aplicación web
+# Expose el puerto 80
 EXPOSE 80
-
-# Ejecuta un comando para iniciar tu aplicación si es necesario, o simplemente mantén el contenedor activo
-CMD ["npm", "start"]

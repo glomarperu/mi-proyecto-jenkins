@@ -11,14 +11,12 @@ pipeline {
         stage('Instalar dependencias') {
             steps {
                 script {
-                    // Usamos una imagen Docker con Node.js
-                    docker.image('node:16-alpine').inside {
-                        // Instalación de htmlhint dentro del contenedor Docker
-                        sh 'npm install -g htmlhint'
-                    }
+                    // Ejecuta la instalación dentro del contenedor Docker
+                    sh 'docker run --rm node:16-alpine npm install -g htmlhint'
                 }
             }
         }
+
 
         stage('Validar HTML') {
             steps {
