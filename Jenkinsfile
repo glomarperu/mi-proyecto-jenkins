@@ -19,14 +19,15 @@ pipeline {
                 // Usar Docker para ejecutar los pasos con Node.js y NPM
                 docker.image('node:16').inside {
                     sh 'npm install -g htmlhint'  // Instalación global de htmlhint
-                    sh 'htmlhint index.html'      // Ejecutar la validación
+                    sh 'htmlhint index.html'      // Ejecutar la validación de sintaxis
                 }
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Construyendo el proyecto...'                
+                echo 'Construyendo el proyecto...'
+                // Aquí puedes agregar más pasos de construcción si es necesario
             }
         }
 
@@ -34,6 +35,7 @@ pipeline {
             steps {
                 echo 'Ejecutando pruebas...'
                 sh 'echo "Aquí puedes agregar pruebas unitarias"'
+                // Puedes agregar un paso real de pruebas unitarias si lo tienes preparado
             }
         }
 
@@ -46,6 +48,7 @@ pipeline {
 
         stage('Publicar en Docker Hub') {
             steps {
+                // Subir la imagen al Docker Hub con las credenciales configuradas en Jenkins
                 withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
                     sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
                 }
@@ -55,6 +58,7 @@ pipeline {
         stage('Desplegar Contenedor') {
             steps {
                 echo 'Desplegando la aplicación...'
+                // Desplegar el contenedor con Docker en el puerto 8081
                 sh 'docker run -d -p 8081:80 --name mi-app $IMAGE_NAME:$IMAGE_TAG'
             }
         }
