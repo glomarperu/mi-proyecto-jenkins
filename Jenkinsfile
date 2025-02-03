@@ -16,10 +16,12 @@ pipeline {
         stage('Lint') {
             steps {
                 echo 'Ejecutando validación de sintaxis...'
-                // Usar Docker para ejecutar los pasos con Node.js y NPM
-                docker.image('node:16').inside {
-                    sh 'npm install -g htmlhint'  // Instalación global de htmlhint
-                    sh 'htmlhint index.html'      // Ejecutar la validación de sintaxis
+                script {
+                    // Usa el contenedor de Docker correctamente para ejecutar los pasos
+                    docker.image('node:16').inside {
+                        sh 'npm install -g htmlhint'  // Instalación global de htmlhint
+                        sh 'htmlhint index.html'      // Ejecutar la validación de sintaxis
+                    }
                 }
             }
         }
