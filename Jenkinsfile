@@ -1,6 +1,11 @@
 pipeline {
     agent any
     
+    environment {
+        IMAGE_NAME = "glomarperu/mi-proyecto-jenkins"
+        IMAGE_TAG = "latest"
+    }
+
     stages {
         stage('Clonar Repositorio') {
             steps {
@@ -8,15 +13,45 @@ pipeline {
             }
         }
         
+        stage('Lint') {
+            steps {
+                echo 'Ejecutando validación de sintaxis...'
+                sh 'htmlhint index.html || true'
+            }
+        }
+
         stage('Build') {
             steps {
                 echo 'Construyendo el proyecto...'                
             }
         }
-        
-        stage('Deploy') {
+
+        stage('Pruebas') {
             steps {
-                echo 'Desplegando la vista HTML'                
+                echo 'Ejecutando pruebas...'
+                sh 'echo "Aquí puedes agregar pruebas unitarias"'
+            }
+        }
+
+        stage('Construir Imagen Docker') {
+            steps {
+                echo 'Construyendo la imagen Docker...'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+
+        stage('Publicar en Docker Hub') {
+            steps {
+                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
+                    sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
+                }
+            }
+        }
+
+        stage('Desplegar Contenedor') {
+            steps {
+                echo 'Desplegando la aplicación...'
+                sh 'docker run -d -p 8081:80 --name mi-app $IMAGE_NAME:$IMAGE_TAG'
             }
         }
     }
