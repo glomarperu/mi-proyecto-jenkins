@@ -27,6 +27,7 @@ pipeline {
             steps {
                 script {
                     // Aquí va tu lógica para construir la imagen Docker
+                    echo "Construir imagen Docker"
                 }
             }
         }
@@ -34,6 +35,7 @@ pipeline {
             steps {
                 script {
                     // Aquí va tu lógica para ejecutar las pruebas
+                    echo "Ejecutar pruebas"
                 }
             }
         }
