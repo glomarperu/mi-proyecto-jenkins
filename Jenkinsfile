@@ -1,9 +1,5 @@
 pipeline {
     agent any
-    
-    environment {
-        // Puedes añadir otras variables de entorno si las necesitas
-    }
 
     stages {
         stage('Checkout') {
@@ -11,7 +7,7 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage('Instalar dependencias') {
             steps {
                 script {
@@ -20,7 +16,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Validar HTML') {
             steps {
                 script {
