@@ -27,9 +27,11 @@ pipeline {
             steps {
                 script {
                     echo "Construir imagen Docker"
+                    sh 'docker run -d -p 8081:80 my-htmlhint-container'
                 }
             }
         }
+
         stage('Ejecutar pruebas') {
             steps {
                 script {
