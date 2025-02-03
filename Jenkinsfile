@@ -16,7 +16,8 @@ pipeline {
         stage('Lint') {
             steps {
                 echo 'Ejecutando validación de sintaxis...'
-                sh 'htmlhint index.html || true'
+                sh 'npm install -g htmlhint' // Instalación global de htmlhint
+                sh 'htmlhint index.html'     // Ejecutar la validación
             }
         }
 
