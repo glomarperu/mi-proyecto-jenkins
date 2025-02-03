@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    
+    environment {
+        // Puedes añadir otras variables de entorno si las necesitas
+    }
 
     stages {
         stage('Checkout') {
@@ -7,43 +11,51 @@ pipeline {
                 checkout scm
             }
         }
+        
         stage('Instalar dependencias') {
             steps {
                 script {
-                    // Usamos un contenedor Docker con Node.js para instalar dependencias
-                    docker.image('node:16').inside {
-                        sh 'npm install -g htmlhint'
-                    }
+                    // Instalación de htmlhint dentro del contenedor Docker
+                    sh 'npm install -g htmlhint'
                 }
             }
         }
+        
         stage('Validar HTML') {
             steps {
                 script {
-                    // Ejecutamos la validación en el contenedor Docker
-                    docker.image('node:16').inside {
-                        sh 'htmlhint index.html'
-                    }
+                    // Ejecuta el comando de validación con htmlhint
+                    sh 'htmlhint index.html'
                 }
             }
         }
+
         stage('Construir imagen Docker') {
             steps {
                 script {
-                    sh 'docker build -t glomarperu/mi-proyecto-jenkins:latest .'
+                    // Aquí puedes añadir el paso para construir tu imagen Docker
+                    sh 'docker build -t mi-imagen .'
                 }
             }
         }
+
         stage('Ejecutar pruebas') {
             steps {
-                echo 'Aquí puedes agregar pruebas unitarias.'
+                script {
+                    // Aquí puedes añadir las pruebas que desees ejecutar
+                    sh 'npm test'
+                }
             }
         }
     }
 
     post {
         always {
+            // Limpiar o realizar acciones post-ejecución
             echo 'Pipeline completado.'
+        }
+        failure {
+            echo 'Pipeline falló.'
         }
     }
 }
