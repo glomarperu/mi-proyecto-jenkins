@@ -1,68 +1,49 @@
 pipeline {
     agent any
-    
-    environment {
-        IMAGE_NAME = "glomarperu/mi-proyecto-jenkins"
-        IMAGE_TAG = "latest"
-    }
 
     stages {
-        stage('Clonar Repositorio') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/glomarperu/mi-proyecto-jenkins.git'
+                // Clonar el repositorio
+                checkout scm
             }
         }
-        
-        stage('Lint') {
+        stage('Instalar dependencias') {
             steps {
-                echo 'Ejecutando validación de sintaxis...'
+                // Instalar htmlhint para la validación de sintaxis HTML
                 script {
-                    // Usa el contenedor de Docker correctamente para ejecutar los pasos
-                    docker.image('node:16').inside {
-                        sh 'npm install -g htmlhint'  // Instalación global de htmlhint
-                        sh 'htmlhint index.html'      // Ejecutar la validación de sintaxis
-                    }
+                    sh 'npm install -g htmlhint'
                 }
             }
         }
-
-        stage('Build') {
+        stage('Validar HTML') {
             steps {
-                echo 'Construyendo el proyecto...'
-                // Aquí puedes agregar más pasos de construcción si es necesario
-            }
-        }
-
-        stage('Pruebas') {
-            steps {
-                echo 'Ejecutando pruebas...'
-                sh 'echo "Aquí puedes agregar pruebas unitarias"'
-                // Puedes agregar un paso real de pruebas unitarias si lo tienes preparado
-            }
-        }
-
-        stage('Construir Imagen Docker') {
-            steps {
-                echo 'Construyendo la imagen Docker...'
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
-            }
-        }
-
-        stage('Publicar en Docker Hub') {
-            steps {
-                // Subir la imagen al Docker Hub con las credenciales configuradas en Jenkins
-                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
-                    sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
+                // Ejecutar la validación de HTML
+                script {
+                    sh 'htmlhint index.html'
                 }
             }
         }
-
-        stage('Desplegar Contenedor') {
+        stage('Construir imagen Docker') {
             steps {
-                echo 'Desplegando la aplicación...'
-                // Desplegar el contenedor con Docker en el puerto 8081
-                sh 'docker run -d -p 8081:80 --name mi-app $IMAGE_NAME:$IMAGE_TAG'
+                // Construir la imagen Docker usando el Dockerfile
+                script {
+                    sh 'docker build -t glomarperu/mi-proyecto-jenkins:latest .'
+                }
             }
+        }
+        stage('Ejecutar pruebas') {
+            steps {
+                // Agregar tus pruebas unitarias aquí si las tienes
+                echo 'Aquí puedes agregar pruebas unitarias.'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Aquí puedes agregar cualquier limpieza o notificación
+            echo 'Pipeline completado.'
         }
     }
 }
