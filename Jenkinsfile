@@ -11,8 +11,11 @@ pipeline {
         stage('Instalar dependencias') {
             steps {
                 script {
-                    // Instalación de htmlhint dentro del contenedor Docker
-                    sh 'npm install -g htmlhint'
+                    // Usamos una imagen Docker con Node.js
+                    docker.image('node:16-alpine').inside {
+                        // Instalación de htmlhint dentro del contenedor Docker
+                        sh 'npm install -g htmlhint'
+                    }
                 }
             }
         }
@@ -20,8 +23,11 @@ pipeline {
         stage('Validar HTML') {
             steps {
                 script {
-                    // Ejecuta el comando de validación con htmlhint
-                    sh 'htmlhint index.html'
+                    // Usamos la misma imagen Docker para ejecutar la validación HTML
+                    docker.image('node:16-alpine').inside {
+                        // Ejecuta el comando de validación con htmlhint
+                        sh 'htmlhint index.html'
+                    }
                 }
             }
         }
@@ -29,7 +35,7 @@ pipeline {
         stage('Construir imagen Docker') {
             steps {
                 script {
-                    // Aquí puedes añadir el paso para construir tu imagen Docker
+                    // Construir la imagen Docker para tu aplicación
                     sh 'docker build -t mi-imagen .'
                 }
             }
@@ -38,8 +44,10 @@ pipeline {
         stage('Ejecutar pruebas') {
             steps {
                 script {
-                    // Aquí puedes añadir las pruebas que desees ejecutar
-                    sh 'npm test'
+                    // Ejecuta pruebas dentro del contenedor Docker con Node.js
+                    docker.image('node:16-alpine').inside {
+                        sh 'npm test'
+                    }
                 }
             }
         }
